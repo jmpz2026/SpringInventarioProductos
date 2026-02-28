@@ -1,0 +1,25 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: ChamoBank
+
+  datasource:
+    url: jdbc:h2:file:./data/SpringInventarioProductos
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    org.springframework: INFO
+    com.myapp: DEBUG
