@@ -1,4 +1,4 @@
 package com.springinventarioproductos.entity;
 
-public class InventoryController {
+public class InventoryEntity {
 }
