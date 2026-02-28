@@ -16,9 +16,9 @@ public class InventoryController {
         this.inventoryService = inventoryService;
     }
 
-    @GetMapping
-    public ResponseEntity<InventoryResponseDTO> getInventory(@RequestBody InventoryRequestDTO inventoryRequestDTO) {
-        InventoryResponseDTO inventoryResponseDTO = inventoryService.createInventory(inventoryRequestDTO);
+    @GetMapping("{id}")
+    public ResponseEntity<InventoryResponseDTO> getInventoryById(@PathVariable Long id) {
+        InventoryResponseDTO inventoryResponseDTO = inventoryService.getInventoryById(id);
         return ResponseEntity.ok().body(inventoryResponseDTO);
     }
 

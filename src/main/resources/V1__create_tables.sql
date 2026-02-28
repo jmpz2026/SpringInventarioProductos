@@ -1,0 +1,15 @@
+DROP TABLE IF EXISTS inventory;
+DROP TABLE IF EXISTS products;
+
+CREATE TABLE inventory (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE products (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    productname VARCHAR(255) NOT NULL,
+    quantity INT NOT NULL,
+    inventoryid BIGINT NOT NULL,
+    CONSTRAINT fk_inventory FOREIGN KEY (inventoryid) REFERENCES inventory(id) ON DELETE CASCADE
+);

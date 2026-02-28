@@ -7,11 +7,15 @@ import com.springinventarioproductos.dto.product.ProductResponseDTO;
 import com.springinventarioproductos.entity.InventoryEntity;
 import com.springinventarioproductos.entity.ProductEntity;
 import com.springinventarioproductos.repository.InventoryRepository;
+import com.springinventarioproductos.repository.MessageRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -72,8 +76,8 @@ public class InventoryService {
             inventoryResponseDTO.setProducts(products);
 
             return inventoryResponseDTO;
-        } catch (RuntimeException e){
-            throw new RuntimeException("El inventario no existe o no se ha encontrado");
+        } catch (EmptyResultDataAccessException e){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, MessageRepository.NOT_FOUND);
         }
     }
 
@@ -82,6 +86,7 @@ public class InventoryService {
         productResponseDTO.setId(productEntity.getId());
         productResponseDTO.setProductName(productEntity.getProductName());
         productResponseDTO.setQuantity(productEntity.getQuantity());
+        productResponseDTO.setInventoryId(productEntity.getInventoryId());
         return productResponseDTO;
     }
 }
