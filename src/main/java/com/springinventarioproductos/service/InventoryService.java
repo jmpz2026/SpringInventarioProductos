@@ -2,7 +2,6 @@ package com.springinventarioproductos.service;
 
 import com.springinventarioproductos.dto.inventory.InventoryRequestDTO;
 import com.springinventarioproductos.dto.inventory.InventoryResponseDTO;
-import com.springinventarioproductos.dto.product.ProductRequestDTO;
 import com.springinventarioproductos.dto.product.ProductResponseDTO;
 import com.springinventarioproductos.entity.InventoryEntity;
 import com.springinventarioproductos.entity.ProductEntity;
@@ -22,8 +21,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Arrays.stream;
-
 @Service
 public class InventoryService {
 
@@ -38,7 +35,7 @@ public class InventoryService {
     };
 
     private final RowMapper<ProductEntity> productMapper = (rs, rowNum) ->{
-        return ProductEntity.builder().id(rs.getLong("id")).productName(rs.getString("productName")).quantity(rs.getInt("quantity")).inventoryId(rs.getLong("inventoryId")).build();
+        return ProductEntity.builder().id(rs.getLong("id")).productName(rs.getString("product_name")).quantity(rs.getInt("quantity")).inventoryId(rs.getLong("inventory_id")).build();
     };
 
 

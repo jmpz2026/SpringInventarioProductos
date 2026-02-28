@@ -8,8 +8,8 @@ CREATE TABLE inventory (
 
 CREATE TABLE products (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    productname VARCHAR(255) NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
     quantity INT NOT NULL,
-    inventoryid BIGINT NOT NULL,
-    CONSTRAINT fk_inventory FOREIGN KEY (inventoryid) REFERENCES inventory(id) ON DELETE CASCADE
+    inventory_id BIGINT NOT NULL,
+    CONSTRAINT fk_inventory FOREIGN KEY (inventory_id) REFERENCES inventory(id) ON DELETE CASCADE
 );
