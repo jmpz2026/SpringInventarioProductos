@@ -2,10 +2,16 @@ package com.springinventarioproductos.entity;
 
 import com.springinventarioproductos.dto.product.ProductResponseDTO;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.List;
 
+@Getter
+@Setter
+@Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class InventoryEntity {
 
     @Id
@@ -15,5 +21,5 @@ public class InventoryEntity {
     @Column(unique = true, nullable = false)
     private String name;
 
-    private List<ProductResponseDTO> products;
+    private List<ProductEntity> products;
 }
