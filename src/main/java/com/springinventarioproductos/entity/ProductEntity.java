@@ -5,8 +5,6 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class ProductEntity {
 
     private Long id;
