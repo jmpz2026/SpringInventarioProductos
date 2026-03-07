@@ -1,8 +1,10 @@
 package com.springinventarioproductos.repository;
 
-public class InventoryRepository {
+import com.springinventarioproductos.entity.InventoryEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-    public static final String INSERT_INVENTORY = "INSERT INTO inventory (name) VALUES (?)";
-    public static final String SELECT_INVENTORY = "SELECT * FROM inventory WHERE id = ?";
-    public static final String SELECT_PRODUCT_BY_INVENTORY_ID = "SELECT id, product_name, quantity, inventory_id FROM products WHERE inventory_id = ?";
+@Repository
+public interface InventoryRepository extends JpaRepository<InventoryEntity,Long> {
+
 }

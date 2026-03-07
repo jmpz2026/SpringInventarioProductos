@@ -7,6 +7,7 @@ import com.springinventarioproductos.entity.InventoryEntity;
 import com.springinventarioproductos.entity.ProductEntity;
 import com.springinventarioproductos.repository.MessageRepository;
 import com.springinventarioproductos.repository.ProductRepository;
+import lombok.NoArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,21 +21,10 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 
 @Service
+@NoArgsConstructor
 public class ProductService {
 
     private JdbcTemplate jdbcTemplate;
-
-    public ProductService(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    private final RowMapper<InventoryEntity> inventoryMapper = (rs, rowNum) ->{
-        return InventoryEntity.builder().id(rs.getLong("id")).name(rs.getString("name")).build();
-    };
-
-    private final RowMapper<ProductEntity> productMapper = (rs, rowNum) ->{
-        return ProductEntity.builder().id(rs.getLong("id")).productName(rs.getString("product_name")).quantity(rs.getInt("quantity")).inventoryId(rs.getLong("inventory_id")).build();
-    };
 
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
