@@ -1,6 +1,8 @@
 package com.springinventarioproductos.controller;
 
+import com.springinventarioproductos.dto.HttpGlobalResponse;
 import com.springinventarioproductos.dto.MessageResponseDTO;
+import com.springinventarioproductos.dto.inventory.InventoryResponseDTO;
 import com.springinventarioproductos.dto.product.ProductRequestDTO;
 import com.springinventarioproductos.dto.product.ProductResponseDTO;
 import com.springinventarioproductos.service.ProductService;
@@ -25,8 +27,8 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody ProductRequestDTO productRequestDTO) {
-        ProductResponseDTO productResponseDTO = productService.createProduct(productRequestDTO);
+    public ResponseEntity<HttpGlobalResponse<ProductResponseDTO>> createProduct(@RequestBody ProductRequestDTO productRequestDTO) {
+        HttpGlobalResponse<ProductResponseDTO> productResponseDTO = productService.createProduct(productRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(productResponseDTO);
     }
 

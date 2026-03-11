@@ -1,6 +1,8 @@
 package com.springinventarioproductos.service;
 
+import com.springinventarioproductos.dto.HttpGlobalResponse;
 import com.springinventarioproductos.dto.MessageResponseDTO;
+import com.springinventarioproductos.dto.inventory.InventoryResponseDTO;
 import com.springinventarioproductos.dto.product.ProductRequestDTO;
 import com.springinventarioproductos.dto.product.ProductResponseDTO;
 import com.springinventarioproductos.entity.InventoryEntity;
@@ -33,17 +35,22 @@ public class ProductService {
 
     private final InventoryRepository inventoryRepository;
 
-    public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
+    public HttpGlobalResponse<ProductResponseDTO> createProduct(ProductRequestDTO productRequestDTO) {
         InventoryEntity inventoryEntity = inventoryRepository.findById(productRequestDTO.getInventoryId()).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, MessageRepository.NOT_FOUND)
         );
 
         ProductEntity productEntity = convertHelper.convertProductRequestDtoToProductEntity(productRequestDTO,inventoryEntity);
+        ProductResponseDTO productResponseDTO = convertHelper.ConvertProductEntityToProductResponseDto(productEntity);
 
-        productEntity = productRepository.save(productEntity);
+        productRepository.save(productEntity);
+
+        HttpGlobalResponse<ProductResponseDTO> httpGlobalResponse = new HttpGlobalResponse<>();
+        httpGlobalResponse.setData(productResponseDTO);
+        httpGlobalResponse.setMessage(MessageRepository.INVENTORY_CREATED);
 
 
-        return productResponseDTO;
+        return httpGlobalResponse;
     }
 
     public ProductResponseDTO getProductById(long id){
