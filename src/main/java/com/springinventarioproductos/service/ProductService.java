@@ -5,9 +5,12 @@ import com.springinventarioproductos.dto.product.ProductRequestDTO;
 import com.springinventarioproductos.dto.product.ProductResponseDTO;
 import com.springinventarioproductos.entity.InventoryEntity;
 import com.springinventarioproductos.entity.ProductEntity;
+import com.springinventarioproductos.helper.ConvertHelper;
+import com.springinventarioproductos.repository.InventoryRepository;
 import com.springinventarioproductos.repository.MessageRepository;
 import com.springinventarioproductos.repository.ProductRepository;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,31 +24,24 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 
 @Service
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class ProductService {
 
-    private JdbcTemplate jdbcTemplate;
+    private final ProductRepository productRepository;
+
+    private final ConvertHelper convertHelper;
+
+    private final InventoryRepository inventoryRepository;
 
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
+        InventoryEntity inventoryEntity = inventoryRepository.findById(productRequestDTO.getInventoryId()).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, MessageRepository.NOT_FOUND)
+        );
 
-        jdbcTemplate.update(connection -> {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    ProductRepository.INSERT_PRODUCT,
-                    Statement.RETURN_GENERATED_KEYS
-            );
+        ProductEntity productEntity = convertHelper.convertProductRequestDtoToProductEntity(productRequestDTO,inventoryEntity);
 
-            preparedStatement.setString(1,productRequestDTO.getProductName());
-            preparedStatement.setInt(2,productRequestDTO.getQuantity());
-            preparedStatement.setLong(3,productRequestDTO.getInventoryId());
-            return preparedStatement;
-        }, keyHolder);
+        productEntity = productRepository.save(productEntity);
 
-        ProductResponseDTO productResponseDTO = new ProductResponseDTO();
-        productResponseDTO.setId(keyHolder.getKey().longValue());
-        productResponseDTO.setProductName(productRequestDTO.getProductName());
-        productResponseDTO.setQuantity(productRequestDTO.getQuantity());
-        productResponseDTO.setInventoryId(productRequestDTO.getInventoryId());
 
         return productResponseDTO;
     }

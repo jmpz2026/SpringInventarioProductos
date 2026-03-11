@@ -1,6 +1,7 @@
 package com.springinventarioproductos.helper;
 
 import com.springinventarioproductos.dto.inventory.InventoryRequestDTO;
+import com.springinventarioproductos.dto.product.ProductRequestDTO;
 import com.springinventarioproductos.dto.product.ProductResponseDTO;
 import com.springinventarioproductos.entity.InventoryEntity;
 import com.springinventarioproductos.entity.ProductEntity;
@@ -26,5 +27,14 @@ public class ConvertHelper {
         productResponseDTO.setQuantity(productEntity.getQuantity());
         productResponseDTO.setInventoryId(productEntity.getInventory().getId());
         return productResponseDTO;
+    }
+
+    public ProductEntity convertProductRequestDtoToProductEntity(ProductRequestDTO productRequestDTO, InventoryEntity inventoryEntity) {
+        ProductEntity productEntity = new ProductEntity();
+
+        productEntity.setProductName(productRequestDTO.getProductName());
+        productEntity.setQuantity(productRequestDTO.getQuantity());
+        productEntity.setInventory(inventoryEntity);
+        return productEntity;
     }
 }
