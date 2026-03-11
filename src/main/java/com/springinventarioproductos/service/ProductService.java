@@ -2,28 +2,20 @@ package com.springinventarioproductos.service;
 
 import com.springinventarioproductos.dto.HttpGlobalResponse;
 import com.springinventarioproductos.dto.MessageResponseDTO;
-import com.springinventarioproductos.dto.inventory.InventoryResponseDTO;
 import com.springinventarioproductos.dto.product.ProductRequestDTO;
 import com.springinventarioproductos.dto.product.ProductResponseDTO;
+import com.springinventarioproductos.dto.product.TransactionProductRequestDTO;
 import com.springinventarioproductos.entity.InventoryEntity;
 import com.springinventarioproductos.entity.ProductEntity;
+import com.springinventarioproductos.enums.TransactionType;
 import com.springinventarioproductos.helper.ConvertHelper;
 import com.springinventarioproductos.repository.InventoryRepository;
 import com.springinventarioproductos.repository.MessageRepository;
 import com.springinventarioproductos.repository.ProductRepository;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 
 @Service
 @RequiredArgsConstructor
@@ -41,9 +33,10 @@ public class ProductService {
         );
 
         ProductEntity productEntity = convertHelper.convertProductRequestDtoToProductEntity(productRequestDTO,inventoryEntity);
-        ProductResponseDTO productResponseDTO = convertHelper.ConvertProductEntityToProductResponseDto(productEntity);
 
         productRepository.save(productEntity);
+
+        ProductResponseDTO productResponseDTO = convertHelper.ConvertProductEntityToProductResponseDto(productEntity);
 
         HttpGlobalResponse<ProductResponseDTO> httpGlobalResponse = new HttpGlobalResponse<>();
         httpGlobalResponse.setData(productResponseDTO);
@@ -53,123 +46,66 @@ public class ProductService {
         return httpGlobalResponse;
     }
 
-    public ProductResponseDTO getProductById(long id){
-        try{
-            ProductEntity productEntity = jdbcTemplate.queryForObject(ProductRepository.SELECT_PRODUCT,productMapper,id);
+    public HttpGlobalResponse<ProductResponseDTO> getProductById(long id){
+        ProductEntity productEntity = productRepository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, MessageRepository.NOT_FOUND)
+        );
 
-            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
-            productResponseDTO.setId(productEntity.getId());
-            productResponseDTO.setProductName(productEntity.getProductName());
-            productResponseDTO.setQuantity(productEntity.getQuantity());
-            productResponseDTO.setInventoryId(productEntity.getInventoryId());
+        ProductResponseDTO productResponseDTO = convertHelper.ConvertProductEntityToProductResponseDto(productEntity);
 
-            return productResponseDTO;
-        } catch (EmptyResultDataAccessException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, MessageRepository.NOT_FOUND);
+        HttpGlobalResponse<ProductResponseDTO> httpGlobalResponse = new HttpGlobalResponse<>();
+        httpGlobalResponse.setData(productResponseDTO);
+        httpGlobalResponse.setMessage(MessageRepository.PRODUCT_FOUND);
+
+        return httpGlobalResponse;
+    }
+
+    public HttpGlobalResponse<MessageResponseDTO> transactionProduct(TransactionProductRequestDTO transactionProductRequestDTO) {
+        ProductEntity productEntity = productRepository.findById(transactionProductRequestDTO.getProductId()).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, MessageRepository.NOT_FOUND)
+        );
+
+        TransactionType transactionType = transactionProductRequestDTO.getTransactionType();
+        HttpGlobalResponse<MessageResponseDTO> httpGlobalResponse = new HttpGlobalResponse<>();
+        MessageResponseDTO messageResponseDTO = new MessageResponseDTO();
+
+        switch (transactionType) {
+            case TransactionType.ADD:
+                productEntity.setQuantity(productEntity.getQuantity()+transactionProductRequestDTO.getQuantity());
+                productRepository.save(productEntity);
+
+                messageResponseDTO.setMessage(MessageRepository.TRANSACTION_SUCCESS);
+                httpGlobalResponse.setData(messageResponseDTO);
+                break;
+            case TransactionType.REMOVE:
+                if (productEntity.getQuantity() < transactionProductRequestDTO.getQuantity()){
+
+                    messageResponseDTO.setMessage(MessageRepository.PRODUCT_NOT_ENOUGH);
+                    httpGlobalResponse.setData(messageResponseDTO);
+                    break;
+                }
+                if ((productEntity.getQuantity() - transactionProductRequestDTO.getQuantity()) == 0){
+
+                    productEntity.setQuantity(0);
+                    productRepository.save(productEntity);
+
+                    messageResponseDTO.setMessage(MessageRepository.PRODUCT_REMOVED);
+                    httpGlobalResponse.setData(messageResponseDTO);
+                    break;
+                }
+
+                productEntity.setQuantity(productEntity.getQuantity()-transactionProductRequestDTO.getQuantity());
+                productRepository.save(productEntity);
+
+                messageResponseDTO.setMessage(MessageRepository.TRANSACTION_SUCCESS);
+                httpGlobalResponse.setData(messageResponseDTO);
+                break;
+            default:
+                messageResponseDTO.setMessage(MessageRepository.TRANSACTION_INCORRECT);
+                httpGlobalResponse.setData(messageResponseDTO);
+                break;
         }
+        return httpGlobalResponse;
     }
-
-    public MessageResponseDTO addProduct(long id, int quantity) {
-        try{
-            ProductEntity productEntity = jdbcTemplate.queryForObject(ProductRepository.SELECT_PRODUCT,productMapper,id);
-            MessageResponseDTO messageResponseDTO = new MessageResponseDTO();
-
-            if (quantity <= 0) {
-                messageResponseDTO.setMessage(MessageRepository.INCORRECT_AMOUNT);
-                return messageResponseDTO;
-            }
-
-            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
-            productResponseDTO.setId(productEntity.getId());
-            productResponseDTO.setProductName(productEntity.getProductName());
-            productResponseDTO.setQuantity(productEntity.getQuantity());
-            productResponseDTO.setInventoryId(productEntity.getInventoryId());
-
-
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement(
-                        ProductRepository.UPDATE_PRODUCT,
-                        Statement.RETURN_GENERATED_KEYS
-                );
-
-                preparedStatement.setInt(1,productResponseDTO.getQuantity() + quantity);
-                preparedStatement.setLong(2,productResponseDTO.getId());
-                return preparedStatement;
-            }, keyHolder);
-
-            messageResponseDTO.setMessage(messageProductAdded(id, quantity));
-
-            return messageResponseDTO;
-        } catch (EmptyResultDataAccessException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, MessageRepository.NOT_FOUND);
-        }
-    }
-
-    public MessageResponseDTO removeProduct(long id, int quantity) {
-        try{
-            ProductEntity productEntity = jdbcTemplate.queryForObject(ProductRepository.SELECT_PRODUCT,productMapper,id);
-            MessageResponseDTO messageResponseDTO = new MessageResponseDTO();
-
-            if (productEntity.getQuantity() < quantity) {
-                messageResponseDTO.setMessage(MessageRepository.PRODUCT_NOT_ENOUGH);
-                return messageResponseDTO;
-            }
-
-            if (quantity <= 0) {
-                messageResponseDTO.setMessage(MessageRepository.INCORRECT_AMOUNT);
-                return messageResponseDTO;
-            }
-
-            if ((productEntity.getQuantity() - quantity) <= 0) {
-                KeyHolder keyHolder = new GeneratedKeyHolder();
-                jdbcTemplate.update(connection -> {
-                    PreparedStatement preparedStatement = connection.prepareStatement(
-                            ProductRepository.DELETE_PRODUCT,
-                            Statement.RETURN_GENERATED_KEYS
-                    );
-
-                    preparedStatement.setLong(1,productEntity.getId());
-                    return preparedStatement;
-                }, keyHolder);
-
-                messageResponseDTO.setMessage(MessageRepository.REMOVED_PRODUCT);
-                return  messageResponseDTO;
-            }
-
-            ProductResponseDTO productResponseDTO = new ProductResponseDTO();
-            productResponseDTO.setId(productEntity.getId());
-            productResponseDTO.setProductName(productEntity.getProductName());
-            productResponseDTO.setQuantity(productEntity.getQuantity());
-            productResponseDTO.setInventoryId(productEntity.getInventoryId());
-
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            jdbcTemplate.update(connection -> {
-                PreparedStatement preparedStatement = connection.prepareStatement(
-                        ProductRepository.UPDATE_PRODUCT,
-                        Statement.RETURN_GENERATED_KEYS
-                );
-
-                preparedStatement.setInt(1,productResponseDTO.getQuantity() - quantity);
-                preparedStatement.setLong(2,productResponseDTO.getId());
-                return preparedStatement;
-            }, keyHolder);
-
-            messageResponseDTO.setMessage(messageProductRemoved(id, quantity));
-
-            return messageResponseDTO;
-        } catch (EmptyResultDataAccessException e){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, MessageRepository.NOT_FOUND);
-        }
-    }
-
-    private String messageProductRemoved(long id, int quantity) {
-        return "Se removieron " + quantity + " productos al item con id " + id;
-    }
-
-    private String messageProductAdded(long id, int quantity) {
-        return "Se añadieron " + quantity + " productos al item con id " + id;
-    }
-
 
 }

@@ -31,7 +31,7 @@ public class InventoryService {
 
 
     public HttpGlobalResponse<InventoryResponseDTO> createInventory(InventoryRequestDTO inventoryRequestDTO) {
-        InventoryEntity inventoryEntity = convertHelper.convertInventoryRequestDtoToInventory(inventoryRequestDTO);
+        InventoryEntity inventoryEntity = convertHelper.convertInventoryRequestDtoToInventoryEntity(inventoryRequestDTO);
 
         inventoryRepository.save(inventoryEntity);
 

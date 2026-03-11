@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class ConvertHelper {
 
     // Metodos Utiles
-    public InventoryEntity convertInventoryRequestDtoToInventory(InventoryRequestDTO inventoryRequestDTO) {
+    public InventoryEntity convertInventoryRequestDtoToInventoryEntity(InventoryRequestDTO inventoryRequestDTO) {
         InventoryEntity inventoryEntity = new InventoryEntity();
         inventoryEntity.setName(inventoryRequestDTO.getName());
         inventoryEntity.setProducts(new ArrayList<>());
@@ -23,6 +23,7 @@ public class ConvertHelper {
 
     public ProductResponseDTO ConvertProductEntityToProductResponseDto(ProductEntity productEntity) {
         ProductResponseDTO productResponseDTO = new ProductResponseDTO();
+        productResponseDTO.setId(productEntity.getId());
         productResponseDTO.setProductName(productEntity.getProductName());
         productResponseDTO.setQuantity(productEntity.getQuantity());
         productResponseDTO.setInventoryId(productEntity.getInventory().getId());
