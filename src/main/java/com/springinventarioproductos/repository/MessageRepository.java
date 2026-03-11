@@ -5,4 +5,7 @@ public class MessageRepository {
     public static final String PRODUCT_NOT_ENOUGH = "No hay suficiente producto";
     public static final String INCORRECT_AMOUNT = "Cantidad invalida";
     public static final String REMOVED_PRODUCT = "Este producto se ha removido de la Tienda";
+    public static final String INVENTORY_CREATED = "El inventario ha sido creado correctamente";
+    public static final String PRODUCT_FOUND = "El producto se ha encontrado";
+    public static final String INVENTORY_FOUND = "El inventario se ha encontrado";
 }

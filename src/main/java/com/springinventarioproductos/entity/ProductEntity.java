@@ -22,7 +22,8 @@ public class ProductEntity {
     @Column(nullable = false, name = "quantity")
     private Integer quantity;
 
-    @Column(nullable = false, name = "inventoryId")
-    private Long inventoryId;
+    @ManyToOne
+    @JoinColumn(name = "inventory")
+    private InventoryEntity inventory;
 
 }

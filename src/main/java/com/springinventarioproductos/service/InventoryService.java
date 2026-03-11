@@ -1,5 +1,6 @@
 package com.springinventarioproductos.service;
 
+import com.springinventarioproductos.dto.HttpGlobalResponse;
 import com.springinventarioproductos.dto.inventory.InventoryRequestDTO;
 import com.springinventarioproductos.dto.inventory.InventoryResponseDTO;
 import com.springinventarioproductos.dto.product.ProductResponseDTO;
@@ -29,7 +30,7 @@ public class InventoryService {
     private final InventoryRepository inventoryRepository;
 
 
-    public InventoryResponseDTO createInventory(InventoryRequestDTO inventoryRequestDTO) {
+    public HttpGlobalResponse<InventoryResponseDTO> createInventory(InventoryRequestDTO inventoryRequestDTO) {
         InventoryEntity inventoryEntity = convertHelper.convertInventoryRequestDtoToInventory(inventoryRequestDTO);
 
         inventoryRepository.save(inventoryEntity);
@@ -39,15 +40,25 @@ public class InventoryService {
         inventoryResponseDTO.setProducts(new ArrayList<>());
         inventoryResponseDTO.setId(inventoryEntity.getId());
 
-        return inventoryResponseDTO;
+        HttpGlobalResponse<InventoryResponseDTO> httpGlobalResponse = new HttpGlobalResponse<>();
+        httpGlobalResponse.setData(inventoryResponseDTO);
+        httpGlobalResponse.setMessage(MessageRepository.INVENTORY_CREATED);
+
+        return httpGlobalResponse;
     }
 
-    public InventoryResponseDTO getInventoryById(Long id) {
+    public HttpGlobalResponse<InventoryResponseDTO> getInventoryById(Long id) {
         InventoryEntity inventoryEntity = inventoryRepository.findById(id).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, MessageRepository.NOT_FOUND)
         );
 
+        HttpGlobalResponse<InventoryResponseDTO> httpGlobalResponse = new HttpGlobalResponse<>();
         List<ProductEntity> productEntity = productRepository.findByInventoryId(id);
+
+        if(productEntity.isEmpty()){
+
+        }
+
         List<ProductResponseDTO> productResponseDTO = productEntity.stream().map(convertHelper::ConvertProductEntityToProductResponseDto).collect(Collectors.toList());
 
         InventoryResponseDTO inventoryResponseDTO = new InventoryResponseDTO();
@@ -55,6 +66,9 @@ public class InventoryService {
         inventoryResponseDTO.setName(inventoryEntity.getName());
         inventoryResponseDTO.setProducts(productResponseDTO);
 
-        return inventoryResponseDTO;
+        httpGlobalResponse.setData(inventoryResponseDTO);
+        httpGlobalResponse.setMessage(MessageRepository.INVENTORY_FOUND);
+
+        return httpGlobalResponse;
     }
 }

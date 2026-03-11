@@ -24,7 +24,7 @@ public class ConvertHelper {
         ProductResponseDTO productResponseDTO = new ProductResponseDTO();
         productResponseDTO.setProductName(productEntity.getProductName());
         productResponseDTO.setQuantity(productEntity.getQuantity());
-        productResponseDTO.setInventoryId(productEntity.getInventoryId());
+        productResponseDTO.setInventoryId(productEntity.getInventory().getId());
         return productResponseDTO;
     }
 }

@@ -21,6 +21,6 @@ public class InventoryEntity {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "products")
+    @OneToMany(mappedBy = "inventory")
     private List<ProductEntity> products;
 }
