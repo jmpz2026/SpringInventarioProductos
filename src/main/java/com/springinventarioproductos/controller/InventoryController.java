@@ -4,6 +4,7 @@ import com.springinventarioproductos.dto.HttpGlobalResponse;
 import com.springinventarioproductos.dto.inventory.InventoryRequestDTO;
 import com.springinventarioproductos.dto.inventory.InventoryResponseDTO;
 import com.springinventarioproductos.service.InventoryService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class InventoryController {
     }
 
     @PostMapping
-    public ResponseEntity<HttpGlobalResponse<InventoryResponseDTO>> createInventory(@RequestBody InventoryRequestDTO inventoryRequestDTO) {
+    public ResponseEntity<HttpGlobalResponse<InventoryResponseDTO>> createInventory(@Valid @RequestBody InventoryRequestDTO inventoryRequestDTO) {
         HttpGlobalResponse<InventoryResponseDTO> response = inventoryService.createInventory(inventoryRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

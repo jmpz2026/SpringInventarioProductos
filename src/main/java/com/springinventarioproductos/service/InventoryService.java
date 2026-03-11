@@ -55,10 +55,6 @@ public class InventoryService {
         HttpGlobalResponse<InventoryResponseDTO> httpGlobalResponse = new HttpGlobalResponse<>();
         List<ProductEntity> productEntity = productRepository.findByInventoryId(id);
 
-        if(productEntity.isEmpty()){
-
-        }
-
         List<ProductResponseDTO> productResponseDTO = productEntity.stream().map(convertHelper::ConvertProductEntityToProductResponseDto).collect(Collectors.toList());
 
         InventoryResponseDTO inventoryResponseDTO = new InventoryResponseDTO();
